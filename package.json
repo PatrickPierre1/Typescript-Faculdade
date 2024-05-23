@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon",
+    "migrate:make": "knex migrate:make createUsuarios",
+    "migrate:rollback": "knex migrate:rollback",
     "migrate": "knex migrate:latest",
     "test": "jest --watch"
   },
