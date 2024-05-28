@@ -44,7 +44,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     if(!usuario?.id){
         throw new AppError('Usuario não encontrado');
     }
-
+    //concatena o objeto
     usuario = {
         ...usuario,
         ...obj,
