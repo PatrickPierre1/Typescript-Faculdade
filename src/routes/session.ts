@@ -3,6 +3,7 @@ import knex from "../database/knex";
 import AppError from "../utils/AppError";
 import { compare } from "bcryptjs";
 import authConfig from "../configs/auth";
+import { sign } from "jsonwebtoken";
 
 const router = Router();
 

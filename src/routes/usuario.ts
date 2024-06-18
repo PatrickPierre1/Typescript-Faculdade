@@ -3,6 +3,8 @@ import knex from "../database/knex";
 import { Cipher } from "crypto";
 import AppError from "../utils/AppError";
 import { hash } from "bcrypt";
+import { z } from "zod";
+
 const router = Router();
 
 router.get("/", async (req: Request, res: Response) => {
@@ -12,17 +14,13 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.post("/", async (req: Request, res: Response) => {
-    const obj = req.body;
+    const registerBodySchema = z.object({
+        nome: z.string(),
+        email: z.string().email(),
+        senha: z.string().min(6),
+    });
 
-    if (!obj?.nome) {
-        throw new AppError("Nome é obrigatório");
-    }
-    if (!obj?.email) {
-        throw new AppError("Email é obrigatório");
-    }
-    if (!obj?.senha) {
-        throw new AppError("Senha é obrigatória");
-    }
+    const obj = registerBodySchema.parse(req.body);
 
     obj.senha = await hash(obj.senha, 8);
 
@@ -33,44 +31,43 @@ router.post("/", async (req: Request, res: Response) => {
 
 router.put("/:id", async (req: Request, res: Response) => {
     const obj = req.body;
-    const {id} = req.params;
+    const { id } = req.params;
 
-    if(obj?.senha){
+    if (obj?.senha) {
         obj.senha = await hash(obj.senha, 8);
     }
-    
-    let usuario = await knex('usuarios').where({id}).first();
 
-    if(!usuario?.id){
-        throw new AppError('Usuario não encontrado');
+    let usuario = await knex("usuarios").where({ id }).first();
+
+    if (!usuario?.id) {
+        throw new AppError("Usuario não encontrado");
     }
     //concatena o objeto
     usuario = {
         ...usuario,
         ...obj,
-    }
-    await knex('usuarios').update(usuario).where({id:usuario.id});
+    };
+    await knex("usuarios").update(usuario).where({ id: usuario.id });
 
     return res.json({
         message: "Editado usuario com sucesso!",
-        usuario: usuario
-    })
-
+        usuario: usuario,
+    });
 });
 
-router.delete("/:id", async(req: Request, res: Response)=> {
-    const {id} = req.params;
+router.delete("/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-    let usuario = await knex('usuarios').where({id}).first();
+    let usuario = await knex("usuarios").where({ id }).first();
 
-    if(!usuario?.id){
-        throw new AppError('Usuario não encontrado');
+    if (!usuario?.id) {
+        throw new AppError("Usuario não encontrado");
     }
 
-    await knex('usuarios').where({id}).delete();
+    await knex("usuarios").where({ id }).delete();
 
     return res.json({
-        message: "Usuário deletado com sucesso!"
-    })
+        message: "Usuário deletado com sucesso!",
+    });
 });
 export default router;
